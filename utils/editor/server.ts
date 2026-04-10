@@ -119,15 +119,22 @@ export class EditorServer {
 
   async openUrl(
     url: string,
-    { fileType, fileName }: { fileType?: string; fileName?: string } = {},
+    {
+      fileType,
+      fileName,
+      loader = (url: string) => fetch(url).then((res) => res.arrayBuffer()),
+    }: {
+      fileType?: string;
+      fileName?: string;
+      loader?: (url: string) => Promise<ArrayBuffer>;
+    } = {},
   ) {
     const title = fileName || url.split("/").pop() || "Document";
     this.fileType = fileType || getFileExt(title) || "docx";
     const documentType = getDocumentType(this.fileType);
     this.id = randomId();
     this.title = title;
-    const buffer = () => fetch(url).then((res) => res.arrayBuffer());
-    this.loadPromise = this.loadDocument(buffer, this.fileType);
+    this.loadPromise = this.loadDocument(() => loader(url), this.fileType);
 
     return {
       id: this.id,
@@ -258,7 +265,7 @@ export class EditorServer {
     this.socket = null;
   }
 
-  send(...msg: any[]) {
+  send(...msg: unknown[]) {
     if (!this.socket) {
       console.error("Socket is not connected");
       return;
@@ -267,11 +274,13 @@ export class EditorServer {
     this.socket.server.emit("message", ...msg);
   }
 
-  async handleMessage(msg: any, ...args: unknown[]) {
+  async handleMessage(msg: Record<string, string>, ...args: unknown[]) {
     console.log("[ws] << ", msg, args);
 
     const { send, sessionId, participants, user, client } = this;
-    switch (msg.type) {
+    const type =
+      typeof msg === "object" && msg && "type" in msg ? msg.type : null;
+    switch (type) {
       case "auth":
         const changes: unknown[] = [];
         send({

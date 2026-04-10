@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useLayoutEffect, useRef, useEffect } from "react";
+import { useLayoutEffect, useRef, useEffect, useState } from "react";
 import { useAppStore, useResolvedLanguage, useHasHydrated } from "@/store";
 import {
   API_JS,
@@ -12,13 +12,17 @@ import io, { MockSocket } from "@/utils/editor/socket";
 import { createFetchProxy } from "@/utils/editor/fetch";
 import { createXHRProxy } from "@/utils/editor/xhr";
 import { DocEditor } from "@/utils/editor/types";
+import { createExtensionLoader } from "@/utils/extension";
+import InstallExtensionDialog from "@/components/install-extension-dialog";
 
-export default function Page({ params }: { params: Promise<{}> }) {
+export default function Page() {
   const server = useAppStore((state) => state.server);
   const language = useResolvedLanguage();
   const theme = useAppStore((state) => state.theme);
   const hasHydrated = useHasHydrated();
   const isDirty = useRef(false);
+  const [showInstallHint, setShowInstallHint] = useState(false);
+  const tryDirectRef = useRef<(() => Promise<void>) | null>(null);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -41,15 +45,14 @@ export default function Page({ params }: { params: Promise<{}> }) {
 
     const fileId = searchParams.get("fileId");
     const newDoc = searchParams.get("new");
+    const fileUrl = searchParams.get("url");
+    const paramEditing = searchParams.get("editing");
+    const paramLang = searchParams.get("lang");
+    const paramTheme = searchParams.get("theme");
 
-    if (!fileId && newDoc) {
-      server.openNew(newDoc);
-    }
-
-    const doc = server.getDocument();
-    const user = server.getUser();
-    const documentType = getDocumentType(doc.fileType);
-    console.log("editor: ", doc, user, documentType);
+    const editing = paramEditing === null ? true : paramEditing !== "0";
+    const lang = paramLang || language;
+    const uiTheme = paramTheme || theme;
 
     let editor: DocEditor | null = null;
 
@@ -61,16 +64,16 @@ export default function Page({ params }: { params: Promise<{}> }) {
         'iframe[name="frameEditor"]',
       );
       const win = iframe?.contentWindow as typeof window;
-      const doc = iframe?.contentDocument;
-      if (!doc || !win) {
+      const iframeDoc = iframe?.contentDocument;
+      if (!iframeDoc || !win) {
         throw new Error("Iframe not loaded");
       }
 
-      const XHR = createXHRProxy(win.XMLHttpRequest);
+      const xhr = createXHRProxy(win.XMLHttpRequest);
       const fetchProxy = createFetchProxy(win);
       const _Worker = win.Worker;
 
-      XHR.use((request: Request) => {
+      xhr.use((request: Request) => {
         return server.handleRequest(request);
       });
       fetchProxy.use((request: Request) => {
@@ -78,7 +81,7 @@ export default function Page({ params }: { params: Promise<{}> }) {
       });
       Object.assign(win, {
         io: io,
-        XMLHttpRequest: XHR,
+        XMLHttpRequest: xhr,
         fetch: fetchProxy,
         Worker: function (url: string, options?: WorkerOptions) {
           const u = new URL(url, location.origin);
@@ -89,12 +92,16 @@ export default function Page({ params }: { params: Promise<{}> }) {
         },
       });
 
-      const script = doc.createElement("script");
-      script.src = apiUrl;
-      doc.body.appendChild(script);
+      // const script = iframeDoc.createElement("script");
+      // script.src = apiUrl;
+      // iframeDoc.body.appendChild(script);
     };
 
     const createEditor = () => {
+      const doc = server.getDocument();
+      const user = server.getUser();
+      const documentType = getDocumentType(doc.fileType);
+
       server.setClient({
         buildVersion: window.DocsAPI!.DocEditor.version(),
       });
@@ -106,49 +113,35 @@ export default function Page({ params }: { params: Promise<{}> }) {
           url: doc.url,
 
           permissions: {
-            // TODO: fix PDF edit
-            edit: doc.fileType != "pdf",
+            edit: editing && doc.fileType !== "pdf",
             chat: false,
-            rename: true,
-            protect: true,
+            rename: editing,
+            protect: editing,
             review: false,
-            // TODO: fix export to PDF
             print: false,
           },
         },
         documentType: documentType,
         editorConfig: {
-          lang: language,
-          // canCoAuthoring: true,
-          // type: "desktop",
+          lang: lang,
           coEditing: {
             mode: "fast",
-            change: false, // disable user switching to real-time mode
+            change: false,
           },
           user: {
             ...user,
           },
-
-          // callbackUrl: "https://example.com/url-to-callback.ashx",
           customization: {
-            // help: false,
-            // about: false,
-            // hideRightMenu: true,
-            uiTheme: theme,
+            uiTheme: uiTheme,
             features: {
               spellcheck: {
                 change: false,
               },
             },
-            // anonymous: {
-            //   request: false,
-            //   label: "Guest",
-            // },
             logo: {
               image: location.origin + "/logo-name_black.svg",
               imageDark: location.origin + "/logo-name_white.svg",
               url: location.origin,
-              // visible: false,
             },
           },
         },
@@ -207,9 +200,10 @@ export default function Page({ params }: { params: Promise<{}> }) {
       return editor;
     };
 
-    const loadEditor = async () => {
+    const loadEditor = () => {
       if (window.DocsAPI && window.DocsAPI.DocEditor) {
         createEditor();
+        return;
       }
       let script = document.querySelector<HTMLScriptElement>(
         `script[src="${apiUrl}"]`,
@@ -227,7 +221,26 @@ export default function Page({ params }: { params: Promise<{}> }) {
       };
     };
 
-    loadEditor();
+    const init = async () => {
+      if (newDoc) {
+        server.openNew(newDoc)
+      }
+      if (fileUrl && !fileId) {
+        const { loader, tryDirect } = createExtensionLoader({
+          onWaiting: () => setShowInstallHint(true),
+          onReady: () => setShowInstallHint(false),
+        });
+        tryDirectRef.current = tryDirect;
+        server.openUrl(fileUrl, {
+          fileType: searchParams.get("fileType") || '',
+          fileName: searchParams.get("fileName") || '',
+          loader,
+        })
+      }
+      loadEditor()
+    }
+
+    init()
 
     return () => {
       MockSocket.off("connect", server.handleConnect);
@@ -238,6 +251,12 @@ export default function Page({ params }: { params: Promise<{}> }) {
   }, [hasHydrated]);
 
   return (
+    <>
+    <InstallExtensionDialog
+      open={showInstallHint}
+      onClose={() => setShowInstallHint(false)}
+      onTryDirect={tryDirectRef.current || undefined}
+    />
     <div>
       <div className="w-screen h-screen">
         <div id="placeholder">
@@ -248,5 +267,6 @@ export default function Page({ params }: { params: Promise<{}> }) {
         </div>
       </div>
     </div>
+    </>
   );
 }

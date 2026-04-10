@@ -41,6 +41,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Layout({ children }: PropsWithChildren<{}>) {
+export default function Layout({ children }: PropsWithChildren<unknown>) {
   return <>{children}</>;
 }
