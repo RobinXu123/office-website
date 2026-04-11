@@ -10,13 +10,15 @@ import {
   Info,
   Settings,
   FileText,
-  FileSpreadsheet,
   Presentation,
   FileType2,
+  Puzzle,
 } from "lucide-react";
 import { useExtracted } from "next-intl";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { getNewUrl } from "@/utils/editor/utils";
+import { isExtensionAvailable, EXTENSION_STORE_URL } from "@/utils/extension";
 import { getDocConfig } from "@/lib/document-types";
 import {
   Popover,
@@ -30,6 +32,15 @@ interface SidebarProps {
 
 export function Sidebar({ pathname }: SidebarProps) {
   const t = useExtracted();
+  const [hasExtension, setHasExtension] = useState(true); // default true to avoid flash
+
+  useEffect(() => {
+    // Check immediately and after a delay (content script may not have injected yet)
+    const check = () => setHasExtension(isExtensionAvailable());
+    check();
+    const timer = setTimeout(check, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const newDocTypes = [
     {
@@ -132,6 +143,17 @@ export function Sidebar({ pathname }: SidebarProps) {
       </nav>
 
       <div className="p-4 space-y-1">
+        {!hasExtension && EXTENSION_STORE_URL && (
+          <a
+            href={EXTENSION_STORE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 px-3 py-2 text-sm text-primary hover:bg-primary/5 rounded-md transition-colors mb-2"
+          >
+            <Puzzle className="w-5 h-5" />
+            {t("Get Extension")}
+          </a>
+        )}
         <Link
           href="/settings"
           className={cn(

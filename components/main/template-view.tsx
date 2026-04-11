@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Search,
   Files,
@@ -14,31 +14,24 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/store";
 
-interface Template {
-  name: string;
-  filename: string;
-  preview: string;
-  type: "pptx" | "docx" | "xlsx";
-  category: string;
-}
+import type { Template } from "@/utils/templates";
+import { usePageTitle } from "@/hooks/use-page-title";
 
-export function TemplateView() {
+export function TemplateView({
+  initialTemplates,
+}: {
+  initialTemplates: Template[];
+}) {
   const t = useExtracted();
+  usePageTitle(t("Free Office Templates — Word, Excel & PowerPoint | ZIZIYI Office"));
   const [searchQuery, setSearchQuery] = useState("");
   const [activeType, setActiveType] = useState("All");
   const [activeCategory, setActiveCategory] = useState("All");
-  const [templates, setTemplates] = useState<Template[]>([]);
   const [loadingTemplate, setLoadingTemplate] = useState<string | null>(null);
 
+  const templates = initialTemplates;
   const router = useRouter();
   const server = useAppStore((state) => state.server);
-
-  useEffect(() => {
-    fetch("/files/templates.json")
-      .then((res) => res.json())
-      .then((data) => setTemplates(data))
-      .catch((err) => console.error("Failed to load templates:", err));
-  }, []);
 
   const handleTemplateClick = async (tpl: Template) => {
     if (loadingTemplate) return;

@@ -10,6 +10,8 @@ import { getNewUrl } from "@/utils/editor/utils";
 import { FilePickerCard } from "@/components/file-picker-card";
 import { DocumentIcon } from "@/components/document-icon";
 import { getDocConfig } from "@/lib/document-types";
+import type { Template } from "@/utils/templates";
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useAppStore } from "@/store";
 import {
   getRecentFiles,
@@ -20,20 +22,23 @@ import {
   type RecentFileRecord,
 } from "@/utils/recent-files";
 
-export function OpenView() {
+export function OpenView({
+  recommendedTemplates,
+}: {
+  recommendedTemplates: Template[];
+}) {
   const t = useExtracted();
+  usePageTitle(t("Free Online Office Editor — Word, Excel, PowerPoint | ZIZIYI"));
   const [recentFiles, setRecentFiles] = useState<RecentFileRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [templates, setTemplates] = useState<any[]>([]);
   const [loadingTemplate, setLoadingTemplate] = useState<string | null>(null);
 
   const router = useRouter();
   const server = useAppStore((state) => state.server);
 
-  // Load recent files and templates on mount
+  // Load recent files on mount
   useEffect(() => {
     loadRecentFiles();
-    loadTemplates();
   }, []);
 
   const loadRecentFiles = async () => {
@@ -45,16 +50,6 @@ export function OpenView() {
       console.error("Failed to load recent files:", error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const loadTemplates = async () => {
-    try {
-      const res = await fetch("/files/templates.json");
-      const data = await res.json();
-      setTemplates(data.slice(0, 5)); // Show first 5
-    } catch (err) {
-      console.error("Failed to load templates:", err);
     }
   };
 
@@ -73,7 +68,7 @@ export function OpenView() {
     }
   };
 
-  const handleTemplateClick = async (tpl: any) => {
+  const handleTemplateClick = async (tpl: Template) => {
     if (loadingTemplate) return;
     setLoadingTemplate(tpl.name);
     try {
@@ -151,7 +146,10 @@ export function OpenView() {
               <Link
                 key={type}
                 href={getNewUrl(type)}
-                className="flex flex-col items-center justify-center gap-2 p-4 bg-muted/40 dark:bg-white/5 border border-border rounded-2xl hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5 transition-all group overflow-hidden md:flex-1 md:min-w-0"
+                className={cn(
+                  "flex flex-col items-center justify-center gap-2 p-4 bg-muted/40 dark:bg-white/5 border border-border rounded-2xl hover:shadow-lg hover:-translate-y-0.5 transition-all group overflow-hidden md:flex-1 md:min-w-0",
+                  doc.hoverBorderColor,
+                )}
               >
                 <DocumentIcon
                   type={type}
@@ -161,7 +159,7 @@ export function OpenView() {
                   )}
                   iconClassName="group-hover:text-white"
                 />
-                <span className="text-xs font-semibold transition-colors">
+                <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
                   {label}
                 </span>
               </Link>
@@ -181,8 +179,8 @@ export function OpenView() {
             {t("More templates")}
           </button>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
-          {templates.map((tpl, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+          {recommendedTemplates.map((tpl, i) => (
             <button
               key={i}
               className="flex flex-col gap-2 group text-left focus:outline-none"
@@ -197,7 +195,7 @@ export function OpenView() {
                 <img
                   src={`/files/${encodeURIComponent(tpl.preview)}`}
                   alt={tpl.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
+                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
                 />
 
                 {loadingTemplate === tpl.name && (

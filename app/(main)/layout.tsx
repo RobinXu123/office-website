@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useExtracted } from "next-intl";
 import { Header } from "@/components/main/header";
@@ -10,6 +10,7 @@ import { useAppStore } from "@/store";
 import { addRecentFile } from "@/utils/recent-files";
 import { cn } from "@/lib/utils";
 import { MobileNav } from "@/components/main/mobile-nav";
+import { ExtensionPrompt } from "@/components/extension-prompt";
 import { isDarkTheme } from "@/utils/utils";
 import { APP_ROOT, PRELOAD_HTML } from "@/utils/editor/utils";
 
@@ -22,7 +23,22 @@ export default function MainLayout({
   const pathname = usePathname();
   const t = useExtracted();
   const { server, theme } = useAppStore();
-  const [preloadEditor, setPreloadEditor] = useState(false);
+  const preloadRef = useRef<HTMLDivElement>(null);
+
+  // Preload editor iframe when browser is idle
+  useEffect(() => {
+    const idle = window.requestIdleCallback || ((cb: () => void) => setTimeout(cb, 2000));
+    const id = idle(() => {
+      if (!preloadRef.current) return;
+      const iframe = document.createElement("iframe");
+      iframe.src = APP_ROOT + PRELOAD_HTML;
+      iframe.className = "w-0 h-0 hidden absolute -z-10";
+      preloadRef.current.appendChild(iframe);
+    });
+    return () => {
+      (window.cancelIdleCallback || clearTimeout)(id);
+    };
+  }, []);
 
   useEffect(() => {
     const isDark = isDarkTheme(theme);
@@ -32,10 +48,6 @@ export default function MainLayout({
       document.documentElement.classList.remove("dark");
     }
   }, [theme]);
-
-  useEffect(() => {
-    setPreloadEditor(true);
-  }, []);
 
   return (
     <div
@@ -77,6 +89,9 @@ export default function MainLayout({
         <MobileNav pathname={pathname} />
       </div>
 
+      {/* First-visit extension install prompt */}
+      <ExtensionPrompt />
+
       {/* Global Drag and Drop Overlay */}
       <DragDropOverlay
         onFileDrop={async (file, handle) => {
@@ -115,12 +130,7 @@ export default function MainLayout({
         }
       `}</style>
 
-      {preloadEditor && (
-        <iframe
-          className="w-0 h-0 hidden absolute -z-10"
-          src={APP_ROOT + PRELOAD_HTML}
-        />
-      )}
+      <div ref={preloadRef} />
     </div>
   );
 }

@@ -2,11 +2,13 @@
 
 import { Github, Info, ShieldCheck, Heart } from "lucide-react";
 import { useExtracted } from "next-intl";
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useAppStore } from "@/store";
 import { isDarkTheme } from "@/utils/utils";
 
 export function AboutView() {
   const t = useExtracted();
+  usePageTitle(t("About — ZIZIYI Office"));
   const { theme } = useAppStore();
   const isDark = isDarkTheme(theme);
 
@@ -17,7 +19,7 @@ export function AboutView() {
           <Info className="w-10 h-10 text-primary" />
         </div>
         <h1 className="text-4xl font-extrabold tracking-tight">
-          {t("About Web Office")}
+          {t("About ZIZIYI Office")}
         </h1>
         <p className="text-xl text-text-secondary max-w-2xl mx-auto">
           {t(

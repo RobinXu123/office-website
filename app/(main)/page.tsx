@@ -1,43 +1,43 @@
 import type { Metadata } from "next";
 import { OpenView } from "@/components/main/open-view";
+import { getRecommendedTemplates } from "@/utils/templates";
 
 export const metadata: Metadata = {
-  title: "Open & Edit Office Documents Online — ZIZIYI Office",
+  title:
+    "Free Online Office Editor — Open & Edit Word, Excel, PowerPoint | ZIZIYI",
   description:
-    "A serverless, privacy-first web office application. Open, view, and edit Word (.docx), Excel (.xlsx), and PowerPoint (.pptx) documents directly in your browser — no upload, no server, fully local.",
+    "Open, view, and edit DOCX, XLSX, PPTX files directly in your browser for free. No upload, no login — your documents stay private. Drag & drop with the browser extension.",
   keywords: [
-    "web office",
-    "online document editor",
-    "open docx in browser",
-    "Word online",
-    "Excel online",
-    "PowerPoint online",
-    "DOCX viewer",
-    "XLSX editor",
-    "PPTX editor",
-    "serverless office",
-    "privacy-first",
-    "ZIZIYI",
-    "OnlyOffice",
+    "online office editor",
+    "free Word editor online",
+    "free Excel editor online",
+    "free PowerPoint editor online",
+    "open docx online",
+    "edit xlsx in browser",
+    "edit pptx in browser",
+    "no upload document editor",
+    "privacy first office",
+    "ZIZIYI Office",
   ],
   alternates: {
     canonical: "https://office.ziziyi.com",
   },
   openGraph: {
-    title: "Open & Edit Office Documents Online — ZIZIYI Office",
+    title: "Free Online Office Editor — Word, Excel, PowerPoint | ZIZIYI",
     description:
-      "Open, view, and edit Word, Excel, and PowerPoint documents entirely in your browser. No upload, no server — your files stay private.",
+      "Edit Office documents in your browser for free. No upload, no login — fully private.",
     url: "https://office.ziziyi.com",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Open & Edit Office Documents Online — ZIZIYI Office",
+    title: "Free Online Office Editor — Word, Excel, PowerPoint | ZIZIYI",
     description:
-      "Open, view, and edit Word, Excel, and PowerPoint documents entirely in your browser. No upload, no server — your files stay private.",
+      "Edit Office documents in your browser for free. No upload, no login — fully private.",
   },
 };
 
 export default function HomePage() {
-  return <OpenView />;
+  const templates = getRecommendedTemplates();
+  return <OpenView recommendedTemplates={templates} />;
 }

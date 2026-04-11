@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { AboutView } from "@/components/main/about-view";
 
 export const metadata: Metadata = {
-  title: "About - Web Office Suite by ZIZIYI",
+  title: "About — ZIZIYI Office",
   description:
-    "Learn about Web Office Suite by ZIZIYI: an open-source, serverless, privacy-first web office application powered by OnlyOffice WebAssembly technology.",
+    "ZIZIYI Office is a serverless, privacy-first office suite powered by OnlyOffice. Edit documents entirely in your browser — no data ever leaves your device.",
   robots: {
     index: false,
     follow: false,

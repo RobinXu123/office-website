@@ -7,11 +7,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://office.ziziyi.com"),
   title: {
-    default: "Web Office Suite by ZIZIYI - Open & Edit Office Documents Online",
-    template: "%s | Web Office Suite by ZIZIYI",
+    default: "ZIZIYI Office — Free Online Word, Excel & PowerPoint Editor",
+    template: "%s",
   },
   description:
-    "A local Office file preview and editing application. Open, view, and edit Word, Excel, and PowerPoint documents directly in your browser.",
+    "Free online office suite. Open, view, and edit Word, Excel, and PowerPoint documents directly in your browser. No upload, no login — your files stay private.",
   keywords: [
     "web office",
     "online office suite",
@@ -19,22 +19,39 @@ export const metadata: Metadata = {
     "Excel online",
     "PowerPoint online",
     "DOCX viewer",
+    "DOCX editor",
     "XLSX editor",
+    "PPTX editor",
+    "open docx online",
+    "edit excel online",
     "serverless office",
+    "privacy first",
     "ZIZIYI",
-    "OnlyOffice",
   ],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/logo.svg", type: "image/svg+xml" },
+    ],
+    apple: "/logo.png",
+  },
   openGraph: {
-    siteName: "Web Office Suite by ZIZIYI",
+    siteName: "ZIZIYI Office",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
+    creator: "@nicezizi",
   },
   robots: {
     index: true,
     follow: true,
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-title": "ZIZIYI Office",
   },
 };
 
@@ -52,10 +69,37 @@ export default async function RootLayout({
     document.documentElement.classList.toggle("dark", isDark);
   };
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "ZIZIYI Office",
+    url: "https://office.ziziyi.com",
+    description:
+      "Open, view, and edit Word, Excel, and PowerPoint documents directly in your browser. No upload, no server — your files stay private.",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Any",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+    featureList: [
+      "Edit DOCX, XLSX, PPTX files",
+      "No file upload required",
+      "Privacy-first — files stay local",
+      "Free templates",
+      "Browser extension for drag & drop",
+    ],
+  };
+
   return (
     <html suppressHydrationWarning>
       <head>
         <script>{`(${preload.toString()})()`}</script>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body>
         <ProgressProvider>

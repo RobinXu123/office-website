@@ -129,7 +129,7 @@ export class EditorServer {
       loader?: (url: string) => Promise<ArrayBuffer>;
     } = {},
   ) {
-    const title = fileName || url.split("/").pop() || "Document";
+    const title = fileName || decodeURIComponent(url.split("/").pop() || "Document")
     this.fileType = fileType || getFileExt(title) || "docx";
     const documentType = getDocumentType(this.fileType);
     this.id = randomId();

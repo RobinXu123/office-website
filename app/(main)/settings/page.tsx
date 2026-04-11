@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { SettingsView } from "@/components/main/settings-view";
 
 export const metadata: Metadata = {
-  title: "Settings - Web Office Suite by ZIZIYI",
+  title: "Settings — ZIZIYI Office",
   description:
-    "Customize your Web Office experience: manage themes, language preferences, and application settings.",
+    "Customize your ZIZIYI Office experience: change editor theme, language, and plugin preferences.",
   robots: {
     index: false,
     follow: false,

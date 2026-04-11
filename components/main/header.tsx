@@ -2,17 +2,18 @@
 
 import {
   FileText,
-  FileSpreadsheet,
+  Sheet,
   Presentation,
   FileType2,
   Files,
 } from "lucide-react";
 import { PropsWithChildren } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useExtracted } from "next-intl";
 import { cn } from "@/lib/utils";
 
 export function Header({ children }: PropsWithChildren<{}>) {
+  const router = useRouter();
   const t = useExtracted();
   const quickActions = [
     {
@@ -23,7 +24,7 @@ export function Header({ children }: PropsWithChildren<{}>) {
     },
     {
       type: "xlsx",
-      icon: FileSpreadsheet,
+      icon: Sheet,
       color:
         "text-green-600 bg-green-50 dark:bg-green-900/40 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/60",
     },
@@ -59,17 +60,17 @@ export function Header({ children }: PropsWithChildren<{}>) {
 
       <div className="hidden md:flex items-center gap-2">
         {quickActions.map((action) => (
-          <Link
+          <button
             key={action.type}
-            href={`/editor?new=${action.type}`}
+            onClick={() => router.push(`/editor?new=${action.type}`)}
             className={cn(
-              "p-2 rounded-lg transition-all duration-200 flex items-center justify-center",
+              "p-2 rounded-lg transition-all duration-200 flex items-center justify-center cursor-pointer",
               action.color,
             )}
             title={t("New {type}", { type: action.type })}
           >
             <action.icon className="w-5 h-5" />
-          </Link>
+          </button>
         ))}
       </div>
     </header>

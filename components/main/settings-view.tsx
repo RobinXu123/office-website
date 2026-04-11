@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { OfficeTheme } from "@/utils/editor/types";
 import { isDarkTheme } from "@/utils/utils";
+import { usePageTitle } from "@/hooks/use-page-title";
 
 // Get display name for a language code
 function getLanguageLabel(code: Language): string {
@@ -42,6 +43,7 @@ const sortedLanguages = [
 
 export function SettingsView() {
   const t = useExtracted();
+  usePageTitle(t("Settings — ZIZIYI Office"));
   const { language, theme, plugins, setState } = useAppStore();
 
   const themes: {

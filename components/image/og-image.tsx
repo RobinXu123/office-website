@@ -5,178 +5,183 @@ import path from "path";
 interface OgImageProps {
   title?: string;
   subtitle?: string;
-  brandName?: string;
 }
 
 const ORANGE = "#FF5900";
 const LOGO_PATH = path.join(process.cwd(), "public", "logo.png");
-const CARD_STYLE = {
-  border: "1px solid rgba(255,255,255,0.3)",
-  boxShadow: "0 25px 50px rgba(0,0,0,0.5)",
-} as const;
 
 let logoDataUri = "";
 let logoLoaded = false;
 
 async function getLogoDataUri() {
-  // Cache the encoded logo to avoid reading from disk for every request.
-  if (logoLoaded) {
-    return logoDataUri;
-  }
-
+  if (logoLoaded) return logoDataUri;
   logoLoaded = true;
   try {
     const logoData = await fs.readFile(LOGO_PATH);
     logoDataUri = `data:image/png;base64,${logoData.toString("base64")}`;
-  } catch (error) {
-    // Render with a fallback icon if logo.png is unavailable.
-    console.error("Failed to read logo.png:", error);
+  } catch {
+    console.error("Failed to read logo.png");
   }
-
   return logoDataUri;
 }
 
-function splitBrandName(brandName: string) {
-  const parts = brandName.trim().split(/\s+/).filter(Boolean);
-  return {
-    primary: parts[0] ?? "",
-    secondary: parts.slice(1).join(" "),
-  };
-}
+const docCards = [
+  { letter: "W", label: "Word", bg: "linear-gradient(135deg, #2b579a 0%, #3b79d6 100%)" },
+  { letter: "X", label: "Excel", bg: "linear-gradient(135deg, #217346 0%, #2ba362 100%)" },
+  { letter: "P", label: "Slides", bg: "linear-gradient(135deg, #c43e1c 0%, #f05228 100%)" },
+];
 
 export const OgImage = async ({
-  title = "Open & Edit Office Documents",
-  subtitle = "No upload | No server | Fully private",
+  title,
+  subtitle,
 }: OgImageProps) => {
   const logoBase64 = await getLogoDataUri();
+  const line1 = title || "Open & Edit Office Documents";
+  const line2 = subtitle || "No upload · No server · Fully private";
 
   return (
     <div
-      tw="flex w-full h-full relative"
+      tw="flex w-full h-full"
       style={{
-        background: "#080808",
-        fontFamily: "Inter, Smiley Sans, sans-serif",
+        background: "#0a0a0a",
+        fontFamily: "Inter, sans-serif",
         display: "flex",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
+      {/* Ambient glow */}
       <div
-        tw="absolute top-[-20%] right-[-10%] w-[70%] h-[90%] rounded-full"
+        tw="absolute"
         style={{
-          background:
-            "radial-gradient(circle, rgba(255, 89, 0, 0.18) 0%, rgba(255, 89, 0, 0) 70%)",
+          top: "-150px",
+          right: "-100px",
+          width: "700px",
+          height: "700px",
+          borderRadius: "50%",
+          background: `radial-gradient(circle, rgba(255, 89, 0, 0.15) 0%, transparent 70%)`,
         }}
       />
       <div
-        tw="absolute bottom-[-20%] left-[-10%] w-[50%] h-[70%] rounded-full"
+        tw="absolute"
         style={{
-          background:
-            "radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 70%)",
+          bottom: "-200px",
+          left: "-150px",
+          width: "600px",
+          height: "600px",
+          borderRadius: "50%",
+          background: `radial-gradient(circle, rgba(255, 89, 0, 0.08) 0%, transparent 70%)`,
         }}
       />
 
-      <div
-        tw="absolute inset-0 w-full h-full"
-        style={{
-          backgroundImage:
-            "radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-        }}
-      />
+      {/* Left content */}
+      <div tw="flex flex-col justify-between flex-1 p-16" style={{ display: "flex" }}>
+        {/* Top: logo + brand */}
+        <div tw="flex items-center" style={{ display: "flex" }}>
+          {logoBase64 ? (
+            <img src={logoBase64} width="52" height="52" style={{ borderRadius: "14px" }} />
+          ) : (
+            <div
+              tw="flex items-center justify-center"
+              style={{
+                width: "52px",
+                height: "52px",
+                borderRadius: "14px",
+                background: `linear-gradient(135deg, ${ORANGE} 0%, #FF8C40 100%)`,
+              }}
+            >
+              <span tw="text-white text-3xl font-black">Z</span>
+            </div>
+          )}
+          <span
+            tw="ml-4 text-3xl font-bold text-white"
+            style={{ letterSpacing: "-0.02em" }}
+          >
+            ZIZIYI Office
+          </span>
+        </div>
 
-      <div tw="absolute top-20 left-24 flex items-center z-10">
-        {logoBase64 ? (
-          <img
-            src={logoBase64}
-            width="64"
-            height="64"
-            style={{ borderRadius: "16px" }}
-          />
-        ) : (
+        {/* Center: headline */}
+        <div tw="flex flex-col" style={{ display: "flex", marginTop: "-20px" }}>
           <div
-            tw="w-16 h-16 rounded-2xl flex items-center justify-center"
+            tw="text-white leading-none"
             style={{
-              background: `linear-gradient(135deg, ${ORANGE} 0%, #FF8C40 100%)`,
-              boxShadow: "0 8px 16px rgba(255, 89, 0, 0.25)",
+              fontSize: "72px",
+              fontWeight: 800,
+              letterSpacing: "-0.03em",
+              lineHeight: "1.05",
             }}
           >
-            <span tw="text-white text-4xl font-black">Z</span>
+            {line1}
           </div>
-        )}
-        <div tw="flex flex-col ml-6">
-          <span tw="text-[42px] font-black text-white leading-none tracking-tight">
-            Office Suite
+          <div
+            tw="flex items-center mt-6"
+            style={{ display: "flex" }}
+          >
+            <div
+              tw="h-1 mr-4"
+              style={{
+                width: "40px",
+                background: ORANGE,
+                borderRadius: "2px",
+              }}
+            />
+            <span tw="text-2xl" style={{ color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>
+              {line2}
+            </span>
+          </div>
+        </div>
+
+        {/* Bottom: url */}
+        <div tw="flex">
+          <span tw="text-xl" style={{ color: "rgba(255,255,255,0.3)", fontWeight: 400 }}>
+            office.ziziyi.com
           </span>
         </div>
       </div>
 
+      {/* Right: doc type cards */}
       <div
-        tw="absolute top-40 left-0 bottom-40 w-3 rounded-r-full"
-        style={{ background: ORANGE, boxShadow: `0 0 30px ${ORANGE}` }}
-      />
-
-      <div tw="flex flex-1 flex-col justify-center p-24 z-10 mt-12">
-        <div tw="flex flex-col">
+        tw="flex flex-col items-center justify-center pr-16"
+        style={{ display: "flex", width: "320px", gap: "16px" }}
+      >
+        {docCards.map((card) => (
           <div
-            tw="text-[84px] font-black leading-none mb-2"
+            key={card.letter}
+            tw="flex items-center"
             style={{
-              color: "white",
-              letterSpacing: "-0.04em",
+              display: "flex",
+              width: "240px",
+              height: "100px",
+              borderRadius: "20px",
+              background: card.bg,
+              padding: "0 28px",
+              border: "1px solid rgba(255,255,255,0.15)",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
             }}
           >
-            {title}
+            <span
+              tw="text-white"
+              style={{
+                fontSize: "48px",
+                fontWeight: 900,
+                lineHeight: 1,
+              }}
+            >
+              {card.letter}
+            </span>
+            <span
+              tw="text-white ml-4"
+              style={{
+                fontSize: "22px",
+                fontWeight: 600,
+                opacity: 0.85,
+              }}
+            >
+              {card.label}
+            </span>
           </div>
-          <div
-            tw="text-7xl font-black mb-10"
-            style={{
-              color: ORANGE,
-              letterSpacing: "-0.04em",
-              lineHeight: 1,
-            }}
-          >
-            in Your Browser
-          </div>
-          <div tw="flex items-center">
-            <div tw="w-12 h-1 bg-white/20 mr-6" />
-            <div tw="text-3xl font-medium text-white/60">{subtitle}</div>
-          </div>
-        </div>
-      </div>
-
-      <div tw="flex flex-col justify-center pr-24 z-10">
-        <div tw="flex flex-col items-center">
-          <div
-            tw="flex flex-col items-center justify-center w-40 h-40 rounded-3xl mb-[-50px] z-20"
-            style={{
-              ...CARD_STYLE,
-              background: "linear-gradient(135deg, #2b579a 0%, #3b79d6 100%)",
-              transform: "rotate(-6deg) translateX(-30px)",
-            }}
-          >
-            <span tw="text-white text-7xl font-black">W</span>
-          </div>
-
-          <div
-            tw="flex flex-col items-center justify-center w-40 h-40 rounded-3xl mb-[-50px] z-30"
-            style={{
-              ...CARD_STYLE,
-              background: "linear-gradient(135deg, #217346 0%, #2ba362 100%)",
-              transform: "rotate(2deg)",
-            }}
-          >
-            <span tw="text-white text-7xl font-black">X</span>
-          </div>
-
-          <div
-            tw="flex flex-col items-center justify-center w-40 h-40 rounded-3xl z-40"
-            style={{
-              ...CARD_STYLE,
-              background: "linear-gradient(135deg, #c43e1c 0%, #f05228 100%)",
-              transform: "rotate(10deg) translateX(30px)",
-            }}
-          >
-            <span tw="text-white text-7xl font-black">P</span>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );
