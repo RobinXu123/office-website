@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from '@next/third-parties/google'
 import { getMessages } from "next-intl/server";
 import { I18nProvider } from "@/components/i18n-provider";
 import { ProgressProvider } from "@/components/progress-provider";
@@ -106,6 +107,7 @@ export default async function RootLayout({
           <I18nProvider initialMessages={messages}>{children}</I18nProvider>
         </ProgressProvider>
       </body>
+      <GoogleAnalytics gaId="G-EFLBPT6TS8" />
     </html>
   );
 }

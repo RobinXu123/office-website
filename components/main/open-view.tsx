@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FolderOpen, Clock, X, Loader2 } from "lucide-react";
 import { useExtracted } from "next-intl";
@@ -28,7 +29,9 @@ export function OpenView({
   recommendedTemplates: Template[];
 }) {
   const t = useExtracted();
-  usePageTitle(t("Free Online Office Editor — Word, Excel, PowerPoint | ZIZIYI"));
+  usePageTitle(
+    t("Free Online Office Editor — Word, Excel, PowerPoint | ZIZIYI"),
+  );
   const [recentFiles, setRecentFiles] = useState<RecentFileRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingTemplate, setLoadingTemplate] = useState<string | null>(null);
@@ -192,10 +195,12 @@ export function OpenView({
                   "aspect-16/10 rounded-lg border border-border dark:border-white/5 shadow-sm group-hover:shadow-md group-hover:border-primary/30 transition-all relative overflow-hidden bg-white dark:bg-zinc-900",
                 )}
               >
-                <img
+                <Image
+                  width={480}
+                  height={270}
                   src={`/files/${encodeURIComponent(tpl.preview)}`}
                   alt={tpl.name}
-                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
+                  className="w-full min-h-full h-auto object-cover object-top group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
                 />
 
                 {loadingTemplate === tpl.name && (

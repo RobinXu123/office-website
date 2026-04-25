@@ -2,16 +2,11 @@
 
 import Link from "next/link";
 import {
-  Home as HomeIcon,
-  Files,
   Layout,
   Plus,
   FolderOpen,
   Info,
   Settings,
-  FileText,
-  Presentation,
-  FileType2,
   Puzzle,
 } from "lucide-react";
 import { useExtracted } from "next-intl";
@@ -148,10 +143,23 @@ export function Sidebar({ pathname }: SidebarProps) {
             href={EXTENSION_STORE_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 px-3 py-2 text-sm text-primary hover:bg-primary/5 rounded-md transition-colors mb-2"
+            className="group mb-3 block rounded-xl border border-primary/20 bg-linear-to-br from-primary/10 via-background to-orange-500/10 p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md hover:shadow-primary/5"
           >
-            <Puzzle className="w-5 h-5" />
-            {t("Get Extension")}
+            <div className="flex items-start gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-semibold text-foreground">
+                    {t("Get Extension")}
+                  </span>
+                  <span className="rounded-full bg-background/80 px-2 py-0.5 text-[10px] font-medium text-primary ring-1 ring-primary/10">
+                    Chrome
+                  </span>
+                </div>
+                <p className="mt-1 text-[12px] leading-relaxed text-text-secondary">
+                  {t("Make your browser an Office app")}
+                </p>
+              </div>
+            </div>
           </a>
         )}
         <Link

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   Search,
   Files,
@@ -163,10 +164,12 @@ export function TemplateView({
                 className="flex flex-col gap-4 group text-left focus:outline-none"
               >
                 <div className="aspect-video rounded-2xl border border-border bg-card group-hover:border-primary/50 group-hover:shadow-xl transition-all relative overflow-hidden flex flex-col items-center justify-center">
-                  <img
+                  <Image
+                    width={480}
+                    height={270}
                     src={`/files/${encodeURIComponent(tpl.preview)}`}
                     alt={tpl.name}
-                    className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-700 ease-out"
+                    className="w-full min-h-full h-auto object-cover object-top group-hover:scale-110 transition-transform duration-700 ease-out"
                   />
 
                   {loadingTemplate === tpl.name && (

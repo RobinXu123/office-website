@@ -7,12 +7,13 @@ import {
   FileType2,
   Files,
 } from "lucide-react";
+import Image from "next/image";
 import { PropsWithChildren } from "react";
 import { useRouter } from "next/navigation";
 import { useExtracted } from "next-intl";
 import { cn } from "@/lib/utils";
 
-export function Header({ children }: PropsWithChildren<{}>) {
+export function Header({ children }: PropsWithChildren<{ className?: string }>) {
   const router = useRouter();
   const t = useExtracted();
   const quickActions = [
@@ -43,16 +44,13 @@ export function Header({ children }: PropsWithChildren<{}>) {
   ];
 
   return (
-    <header className="h-16 flex items-center justify-between px-6 z-20 w-full shrink-0">
+    <header className="h-16 flex items-center justify-between px-4 z-20 w-full shrink-0">
       <div className="flex items-center gap-3">
         <div className="flex items-center justify-center">
-          <img src="/logo.svg" className="w-10 h-10" alt="logo" />
+          <Image width={40} height={40} src="/logo.svg" className="w-10 h-10" alt="ZIZIYI Office logo" />
         </div>
-        <h1 className="text-lg font-bold tracking-normal text-foreground leading-5 pt-1 text-justify [text-align-last:justify]">
-          {"ZIZIYI Office"}
-          <span className="block text-xs font-normal opacity-85 scale-[1] origin-top-left">
-            Docs Sheets Slides
-          </span>
+        <h1 className="text-xl font-extrabold tracking-normal text-foreground leading-5">
+          {"ZIZIYI OFFICE"}
         </h1>
       </div>
 
