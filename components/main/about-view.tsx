@@ -5,6 +5,7 @@ import { useExtracted } from "next-intl";
 import { usePageTitle } from "@/hooks/use-page-title";
 import { useAppStore } from "@/store";
 import { isDarkTheme } from "@/utils/utils";
+import { Logo } from "../svg";
 
 export function AboutView() {
   const t = useExtracted();
@@ -16,10 +17,10 @@ export function AboutView() {
     <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="text-center space-y-4">
         <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-3xl mb-4">
-          <Info className="w-10 h-10 text-primary" />
+          <Logo className="w-12 h-12" />
         </div>
         <h1 className="text-4xl font-extrabold tracking-tight">
-          {t("About ZIZIYI Office")}
+          {"ZIZIYI OFFICE"}
         </h1>
         <p className="text-xl text-text-secondary max-w-2xl mx-auto">
           {t(
